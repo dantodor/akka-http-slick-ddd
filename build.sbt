@@ -1,4 +1,4 @@
-enablePlugins(JavaAppPackaging)
+//enablePlugins(JavaAppPackaging)
 
 organization := "io.forward"
 
@@ -15,6 +15,9 @@ libraryDependencies ++= {
   val akkaStreamV = "2.0.1"
   val scalaTestV  = "2.2.5"
   Seq(
+    "com.typesafe.slick" %% "slick" % "3.1.1",
+    "org.slf4j" % "slf4j-nop" % "1.6.4",
+    "mysql" % "mysql-connector-java" % "5.1.35",
     "com.typesafe"       % "config"                               % "1.3.0",
     "com.typesafe.akka" %% "akka-actor"                           % akkaV,
     "com.typesafe.akka" %% "akka-stream-experimental"             % akkaStreamV,
