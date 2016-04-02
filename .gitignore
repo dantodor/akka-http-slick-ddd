@@ -1,4 +1,4 @@
-### https://raw.github.com/github/gitignore/be3333655bffe9507d66cc864aee95ed6052b4ed/scala.gitignore
+### https://raw.github.com/github/gitignore/4caa9bfad9c46254724a3ff3c1f6b1c4c2a687a0/scala.gitignore
 
 *.class
 *.log
@@ -17,5 +17,6 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
+.idea
 
 
