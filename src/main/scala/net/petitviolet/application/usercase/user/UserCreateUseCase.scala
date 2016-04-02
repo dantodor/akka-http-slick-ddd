@@ -10,7 +10,7 @@ import spray.json._
 import scala.concurrent.{ Future, ExecutionContext }
 
 trait UserCreateUseCase {
-  def execute(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext): Future[Boolean]
+  def execute(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext): Future[ID[User]]
 }
 
 trait UsesUserCreateUseCase {
@@ -23,7 +23,7 @@ trait MixInUserCreateUseCase {
 
 class UserCreateUseCaseImpl extends UserCreateUseCase with MixInUserRepository {
   import slick.driver.MySQLDriver.api._
-  override def execute(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext): Future[Boolean] = {
+  override def execute(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext): Future[ID[User]] = {
     val user = User(
       ID(Identifier.generate),
       Name(userCreateDTO.name),

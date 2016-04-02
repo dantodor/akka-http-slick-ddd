@@ -25,9 +25,9 @@ class UserRepositoryImpl extends UserRepository with MixInDB {
   import slick.driver.MySQLDriver.api._
   private def findById(id: ID[User]) = Users.filter { _.id === id.value }
 
-  override def store(entity: User)(implicit ec: ExecutionContext): Future[Boolean] = {
+  override def store(entity: User)(implicit ec: ExecutionContext): Future[ID[User]] = {
     val query = Users += entity
-    db.run(query) map { _ > 0 }
+    db.run(query) map { _ => entity.id }
   }
 
   override def existsBy(id: ID[User])(implicit ec: ExecutionContext): Future[Boolean] =

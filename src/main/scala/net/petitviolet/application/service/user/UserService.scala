@@ -53,7 +53,7 @@ trait UserService extends ServiceBase
    * @return
    */
   private def listWithHobbies(implicit ec: ExecutionContext) = {
-    import net.petitviolet.domain.user.HobbyJsonProtocol._
+    //    import net.petitviolet.domain.user.HobbyJsonProtocol._
     val resultFuture = userRepository.allUsersWithHobbies
     onSuccess(resultFuture) {
       case userWithHobbies: Map[User, Seq[Hobby]] =>
@@ -70,8 +70,8 @@ trait UserService extends ServiceBase
     val result = userCreateUseCase.execute(userCreateDTO)
 
     onSuccess(result) {
-      case true => complete("Success!")
-      case false => complete("Fail!")
+      case ID(id) => complete(s"Success!: $id")
+      case _ => complete("Fail!")
     }
   }
 
@@ -80,20 +80,17 @@ trait UserService extends ServiceBase
       pathEndOrSingleSlash {
         get {
           list
-        }
-      } ~
-        path(".+{36}".r) { userId =>
-          findUser(userId)
         } ~
-        path("create") {
           post {
             decodeRequest {
-              import UserCreateDTO._
               entity(as[UserCreateDTO]) { dto =>
                 create(dto)
               }
             }
           }
+      } ~
+        path(".+{36}".r) { userId =>
+          findUser(userId)
         }
     }
 
