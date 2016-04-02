@@ -2,7 +2,7 @@
 
 organization := "io.forward"
 
-name := """akka-http-microservice-prac"""
+name := """akka-http-slick-ddd"""
 
 version := "1.0"
 
@@ -16,7 +16,7 @@ libraryDependencies ++= {
   val scalaTestV  = "2.2.5"
   Seq(
     "com.typesafe.slick" %% "slick" % "3.1.1",
-    "org.slf4j" % "slf4j-nop" % "1.6.4",
+    "org.slf4j" % "slf4j-api" % "1.7.20",
     "mysql" % "mysql-connector-java" % "5.1.35",
     "com.typesafe"       % "config"                               % "1.3.0",
     "com.typesafe.akka" %% "akka-actor"                           % akkaV,
@@ -29,37 +29,5 @@ libraryDependencies ++= {
   )
 }
 
-publishMavenStyle := true
+resolvers += Resolver.typesafeRepo("releases")
 
-publishArtifact in Test := false
-
-pomIncludeRepository := { _ => false }
-
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
-
-pomExtra :=
-  <url>http://</url>
-    <licenses>
-      <license>
-        <name>Apache-2.0</name>
-        <url>http://opensource.org/licenses/Apache-2.0</url>
-        <distribution>repo</distribution>
-      </license>
-    </licenses>
-    <scm>
-      <url>https://github.com/owainlewis</url>
-      <connection>scm:git:git@github.com:owainlewis/REPO.git</connection>
-    </scm>
-    <developers>
-      <developer>
-        <name>Owain Lewis</name>
-        <url>http://owainlewis.com</url>
-      </developer>
-    </developers>
-    
