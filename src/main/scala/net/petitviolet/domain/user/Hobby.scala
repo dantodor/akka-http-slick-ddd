@@ -4,7 +4,7 @@ import net.petitviolet.domain.support.{ Entity, ID }
 import spray.json._
 
 case class Hobby(id: ID[Hobby], userId: ID[User], content: Content) extends Entity[ID[Hobby]]
-case class Content(value: String)
+case class Content(value: String) extends AnyVal
 
 object HobbyJsonProtocol extends DefaultJsonProtocol {
   implicit val hobbyFormat: RootJsonFormat[Hobby] = new RootJsonFormat[Hobby] {

@@ -7,8 +7,8 @@ import scala.language.implicitConversions
 
 case class User(id: ID[User], name: Name, email: Email) extends Entity[ID[User]]
 
-case class Name(value: String)
-case class Email(value: String)
+case class Name(value: String) extends AnyVal
+case class Email(value: String) extends AnyVal
 
 object UserJsonProtocol extends DefaultJsonProtocol {
   //   unnecessary format

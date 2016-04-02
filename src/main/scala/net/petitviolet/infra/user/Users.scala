@@ -20,7 +20,7 @@ class Users(tag: Tag) extends Table[User](tag, "user") {
     ))
 
   private def columnToUser(id: String, name: String, email: String) =
-    User(
+    User.apply(
       ID(id),
       Name(name),
       Email(email)

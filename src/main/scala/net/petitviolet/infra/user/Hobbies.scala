@@ -26,7 +26,11 @@ class Hobbies(tag: Tag) extends Table[Hobby](tag, "hobby") {
     ))
 
   private def columnToHobby(id: String, userId: String, content: String) =
-    Hobby(ID[Hobby](id), ID[User](userId), Content(content))
+    Hobby.apply(
+      ID[Hobby](id),
+      ID[User](userId),
+      Content(content)
+    )
 
   def * = (id, userId, content) <> (columnToHobby _ tupled, hobbyToColumn)
 }
