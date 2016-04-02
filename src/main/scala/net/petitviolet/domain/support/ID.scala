@@ -1,3 +1,5 @@
 package net.petitviolet.domain.support
 
-case class ID[A](value: String) extends AnyVal with Identifier[String]
+import net.petitviolet.domain.support.Identifier.IdType
+
+case class ID[A](value: IdType) extends AnyVal with Identifier[IdType]

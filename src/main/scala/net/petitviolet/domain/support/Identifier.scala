@@ -12,5 +12,6 @@ trait Identifier[+A] extends Any {
 }
 
 object Identifier {
-  def generate: String = UUID.randomUUID().toString
+  type IdType = String
+  def generate: IdType = UUID.randomUUID().toString
 }
