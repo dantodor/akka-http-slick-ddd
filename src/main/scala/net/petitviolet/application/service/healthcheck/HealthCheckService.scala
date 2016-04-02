@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.domain.health.Status
-import net.petitviolet.domain.pong.{MixInPongService, UsesPongService, Pong}
+import net.petitviolet.domain.pong.{ MixInPongService, UsesPongService, Pong }
 
 import scala.concurrent.duration._
 
@@ -17,16 +17,15 @@ trait HealthCheckService extends ServiceBase with UsesPongService {
     pathPrefix("ping") {
       pathEnd {
         get {
-          logRequest("/ping", Logging.InfoLevel) { 
+          logRequest("/ping", Logging.InfoLevel) {
             pongService.response()
           }
         }
       } ~
-      path(".+".r) { msg =>
-        pongService.response(Pong(msg))
-      }
+        path(".+".r) { msg =>
+          pongService.response(Pong(msg))
+        }
     }
-
 
   private val uptimeRoute = path("uptime") {
     get {

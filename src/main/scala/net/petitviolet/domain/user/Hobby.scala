@@ -1,9 +1,9 @@
 package net.petitviolet.domain.user
 
-import net.petitviolet.domain.support.{Entity, ID}
+import net.petitviolet.domain.support.{ Entity, ID }
 import spray.json._
 
-case class Hobby(id: ID[Hobby], userId: ID[User], content: Content)extends Entity[ID[Hobby]]
+case class Hobby(id: ID[Hobby], userId: ID[User], content: Content) extends Entity[ID[Hobby]]
 case class Content(value: String)
 
 object HobbyJsonProtocol extends DefaultJsonProtocol {
@@ -15,7 +15,7 @@ object HobbyJsonProtocol extends DefaultJsonProtocol {
         case _ => throw new DeserializationException("Hobby")
       }
 
-    override def write(hobby: Hobby): JsValue = JsObject (
+    override def write(hobby: Hobby): JsValue = JsObject(
       "id" -> JsString(hobby.id.value),
       "user_id" -> JsString(hobby.userId.value),
       "content" -> JsString(hobby.content.value)

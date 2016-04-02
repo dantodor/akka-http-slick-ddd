@@ -7,7 +7,6 @@ import slick.driver.MySQLDriver.api._
 
 import scala.language.postfixOps
 
-
 class Users(tag: Tag) extends Table[User](tag, "user") {
   def id = column[String]("id", O.PrimaryKey)
   def name = column[String]("name")
@@ -18,7 +17,7 @@ class Users(tag: Tag) extends Table[User](tag, "user") {
       u.id.value,
       u.name.value,
       u.email.value
-      ))
+    ))
 
   private def columnToUser(id: String, name: String, email: String) =
     User(
@@ -33,5 +32,4 @@ class Users(tag: Tag) extends Table[User](tag, "user") {
 object Users extends TableQuery(new Users(_)) {
   val findByName = this.findBy(_.name)
 }
-
 

@@ -19,11 +19,11 @@ trait PongService {
   }
 }
 trait UsesPongService {
-	val pongService: PongService
+  val pongService: PongService
 }
 
 trait MixInPongService {
-	val pongService: PongService = new PongServiceImpl
+  val pongService: PongService = new PongServiceImpl
 }
 
 class PongServiceImpl extends PongService

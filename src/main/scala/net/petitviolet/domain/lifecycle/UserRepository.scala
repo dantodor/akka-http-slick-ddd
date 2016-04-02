@@ -1,11 +1,11 @@
 package net.petitviolet.domain.lifecycle
 
 import net.petitviolet.domain.support.ID
-import net.petitviolet.domain.user.{Hobby, User}
+import net.petitviolet.domain.user.{ Hobby, User }
 import net.petitviolet.infra.MixInDB
-import net.petitviolet.infra.user.{Hobbies, Users}
+import net.petitviolet.infra.user.{ Hobbies, Users }
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ Future, ExecutionContext }
 
 trait UserRepository extends Repository[ID[User], User] {
   def allUsers: Future[Seq[User]]

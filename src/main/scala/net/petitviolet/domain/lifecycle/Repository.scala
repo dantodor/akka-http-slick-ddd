@@ -1,8 +1,8 @@
 package net.petitviolet.domain.lifecycle
 
-import net.petitviolet.domain.support.{Entity, Identifier}
+import net.petitviolet.domain.support.{ Entity, Identifier }
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ Future, ExecutionContext }
 
 trait Repository[Id <: Identifier[_], E <: Entity[Id]] {
 

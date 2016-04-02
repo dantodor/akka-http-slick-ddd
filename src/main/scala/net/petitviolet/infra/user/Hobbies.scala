@@ -12,7 +12,7 @@ class Hobbies(tag: Tag) extends Table[Hobby](tag, "hobby") {
   def userId = column[String]("user_id")
   def content = column[String]("content")
 
-  def user = foreignKey("user_FK", userId, Users) (
+  def user = foreignKey("user_FK", userId, Users)(
     _.id,
     onUpdate = ForeignKeyAction.Cascade,
     onDelete = ForeignKeyAction.Cascade
@@ -23,7 +23,7 @@ class Hobbies(tag: Tag) extends Table[Hobby](tag, "hobby") {
       h.id.value,
       h.userId.value,
       h.content.value
-      ))
+    ))
 
   private def columnToHobby(id: String, userId: String, content: String) =
     Hobby(ID[Hobby](id), ID[User](userId), Content(content))

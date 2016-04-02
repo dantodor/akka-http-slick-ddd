@@ -3,7 +3,6 @@ package net.petitviolet.infra
 import slick.jdbc.JdbcBackend
 import slick.jdbc.JdbcBackend.Database
 
-
 trait UsesDB {
   val db: JdbcBackend.DatabaseDef
 }
