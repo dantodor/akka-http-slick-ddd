@@ -66,12 +66,21 @@ trait UserService extends ServiceBase
     }
   }
 
-  private def create(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext) = {
+  private def createUser(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext) = {
     val result = userCreateUseCase.execute(userCreateDTO)
 
     onSuccess(result) {
       case ID(id) => complete(s"Success!: $id")
       case _ => complete("Fail!")
+    }
+  }
+
+  private def deleteUser(id: ID[User])(implicit ec: ExecutionContext) = {
+    val result = userRepository.deleteBy(id)
+
+    onSuccess(result) {
+      case true => complete(s"Success!: $id")
+      case false => complete("Fail!")
     }
   }
 
@@ -84,7 +93,16 @@ trait UserService extends ServiceBase
           post {
             decodeRequest {
               entity(as[UserCreateDTO]) { dto =>
-                create(dto)
+                createUser(dto)
+              }
+            }
+          } ~
+          delete {
+            decodeRequest {
+              import ID._
+              // how to resolve smartly
+              entity(as[ID[_]]) { (id: ID[_]) =>
+                deleteUser(ID(id.value))
               }
             }
           }
