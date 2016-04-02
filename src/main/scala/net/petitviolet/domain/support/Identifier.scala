@@ -2,7 +2,7 @@ package net.petitviolet.domain.support
 
 import java.util.UUID
 
-trait Identifier[+A] {
+trait Identifier[+A] extends Any {
   def value: A
 
   override def equals(obj: scala.Any): Boolean = obj match {
