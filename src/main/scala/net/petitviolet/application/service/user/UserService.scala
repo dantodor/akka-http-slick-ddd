@@ -1,36 +1,43 @@
 package net.petitviolet.application.service.user
 
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.domain.lifecycle.UsesUserRepository
+import net.petitviolet.domain.support.ID
 import net.petitviolet.domain.user.User
+import net.petitviolet.domain.user.UserJsonProtocol._
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait UserService extends ServiceBase with UsesUserRepository {
-  private val PREFIX = "user"
-  import ExecutionContext.Implicits.global
 
-  private def list(implicit executionContext: ExecutionContext) = {
+  private def list = {
     val usersFuture: Future[Seq[User]] = userRepository.allUsers
-    val result = usersFuture.map { _.mkString("{", ",", "}") }
-    val str = Await.result(result, Duration.Inf)
-    HttpResponse(entity = str)
-//    result.onComplete { s =>
-//      complete(s)
-//    }
+    onSuccess(usersFuture) {
+      case users: Seq[User] => complete(users)
+      case _ => complete(StatusCodes.NotFound)
+    }
   }
 
-  private val listRoute =
+  private def findUser(id: String)(implicit ec: ExecutionContext) = {
+    val userFuture = userRepository.resolveBy(ID(id))
+    onSuccess(userFuture) {
+      case user: User => complete(user)
+      case _ => complete(StatusCodes.NotFound)
+    }
+  }
+
+  def userRoutes(implicit ec: ExecutionContext) =
     pathPrefix("users") {
       pathEndOrSingleSlash {
         get {
-          complete(list)
+          list
         }
+      } ~
+      path(".+{36}".r) { userId =>
+        findUser(userId)
       }
     }
-  
-  val userRoutes = listRoute
+
 }
