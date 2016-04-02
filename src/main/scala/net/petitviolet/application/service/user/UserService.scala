@@ -5,12 +5,12 @@ import akka.http.scaladsl.server.Directives._
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.domain.lifecycle.UsesUserRepository
 import net.petitviolet.domain.support.ID
-import net.petitviolet.domain.user.User
-import net.petitviolet.domain.user.UserJsonProtocol._
+import net.petitviolet.domain.user.{Hobby, User}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait UserService extends ServiceBase with UsesUserRepository {
+  import net.petitviolet.domain.user.UserJsonProtocol._
 
   private def list = {
     val usersFuture: Future[Seq[User]] = userRepository.allUsers
@@ -28,7 +28,20 @@ trait UserService extends ServiceBase with UsesUserRepository {
     }
   }
 
-  def userRoutes(implicit ec: ExecutionContext) =
+  private def listWithHobbies(implicit ec: ExecutionContext) = {
+    import net.petitviolet.domain.user.HobbyJsonProtocol._
+    val resultFuture = userRepository.allUsersWithHobbies
+    onSuccess(resultFuture) {
+      case userWithHobbies: Map[User, Seq[Hobby]] =>
+        val r = userWithHobbies.map { case (user, hobbies) =>
+          (user.name.value, hobbies map { _.content.value })
+        }
+        complete(r)
+      case _ => complete(StatusCodes.NotFound)
+    }
+  }
+
+  private def usersRoutes(implicit ec: ExecutionContext) =
     pathPrefix("users") {
       pathEndOrSingleSlash {
         get {
@@ -39,5 +52,14 @@ trait UserService extends ServiceBase with UsesUserRepository {
         findUser(userId)
       }
     }
+
+  private def withHobbiesRoutes(implicit ec:ExecutionContext) =
+    path("users_with_hobbies") {
+      get {
+        listWithHobbies
+      }
+    }
+
+  def userRoutes(implicit ec: ExecutionContext) = usersRoutes ~ withHobbiesRoutes
 
 }
