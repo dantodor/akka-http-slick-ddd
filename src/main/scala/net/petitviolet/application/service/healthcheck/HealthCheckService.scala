@@ -4,25 +4,26 @@ import java.lang.management.ManagementFactory
 
 import akka.event.Logging
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.domain.health.Status
-import net.petitviolet.domain.pong.Pong
+import net.petitviolet.domain.pong.{MixInPongService, UsesPongService, Pong}
 
 import scala.concurrent.duration._
 
-trait HealthCheckService extends ServiceBase {
+trait HealthCheckService extends ServiceBase with UsesPongService {
 
   private val pingRoute =
     pathPrefix("ping") {
       pathEnd {
         get {
-          logRequest("/ping", Logging.InfoLevel) {
-            complete("PONG")
+          logRequest("/ping", Logging.InfoLevel) { 
+            pongService.response()
           }
         }
       } ~
       path(".+".r) { msg =>
-        complete(Pong(msg).out)
+        pongService.response(Pong(msg))
       }
     }
 
@@ -36,5 +37,6 @@ trait HealthCheckService extends ServiceBase {
     }
   }
 
-  val routes = pingRoute ~ uptimeRoute
+  val healthRoutes: Route = pingRoute ~ uptimeRoute
 }
+
