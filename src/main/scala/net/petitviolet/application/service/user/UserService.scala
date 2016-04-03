@@ -3,11 +3,12 @@ package net.petitviolet.application.service.user
 import akka.http.scaladsl.coding.{ Gzip, Deflate }
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.application.usecase.user.{ MixInUserCreateUseCase, UserCreateDTO, UsesUserCreateUseCase }
 import net.petitviolet.domain.lifecycle.{ MixInUserRepository, UsesUserRepository }
 import net.petitviolet.domain.support.ID
-import net.petitviolet.domain.user.{ Hobby, User }
+import net.petitviolet.domain.user.{ Name, Hobby, User }
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -39,13 +40,21 @@ trait UserService extends ServiceBase
    * @param ec
    * @return
    */
-  private def findUser(id: String)(implicit ec: ExecutionContext) = {
-    val userFuture = userRepository.resolveBy(ID(id))
+  private def findUserById(id: ID[User])(implicit ec: ExecutionContext) = {
+    val userFuture = userRepository.resolveBy(id)
+    handleFindUserFuture(userFuture)
+  }
+
+  private def findUserByName(name: Name)(implicit ec: ExecutionContext) = {
+    val userFuture = userRepository.findByName(name)
+    handleFindUserFuture(userFuture)
+  }
+
+  private def handleFindUserFuture(userFuture: Future[User])(implicit ec: ExecutionContext): Route =
     onSuccess(userFuture) {
       case user: User => complete(user)
       case _ => complete(StatusCodes.NotFound)
     }
-  }
 
   /**
    * show all users with his or her hobbies
@@ -89,9 +98,14 @@ trait UserService extends ServiceBase
     pathPrefix("users") {
       pathEndOrSingleSlash {
         get {
-          encodeResponseWith(Gzip, Deflate) {
-            list
-          }
+          // /users?name=foo
+          parameter('name) { name =>
+            findUserByName(Name(name))
+          } ~
+          // /users
+            encodeResponseWith(Gzip, Deflate) {
+              list
+            }
         } ~
           post {
             decodeRequest {
@@ -103,16 +117,21 @@ trait UserService extends ServiceBase
           delete {
             decodeRequest {
               import ID._
-              // how to resolve smartly
+              // how to resolve smartly, and should I prepare IdDTO?
               entity(as[ID[_]]) { (id: ID[_]) =>
                 deleteUser(ID(id.value))
               }
             }
           }
       } ~
+      // /users/<ID>
         path(".+{36}".r) { userId =>
-          findUser(userId)
+          get {
+            // should I use ID? or raw String?
+            findUserById(ID(userId))
+          }
         }
+
     }
 
   private def withHobbiesRoutes(implicit ec: ExecutionContext) =

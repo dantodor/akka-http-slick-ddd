@@ -1,16 +1,19 @@
 package net.petitviolet.domain.lifecycle
 
 import net.petitviolet.domain.support.ID
-import net.petitviolet.domain.user.{ Hobby, User }
+import net.petitviolet.domain.user.{ Name, Hobby, User }
 import net.petitviolet.infra.MixInDB
 import net.petitviolet.infra.user.{ Hobbies, Users }
 
 import scala.concurrent.{ Future, ExecutionContext }
+import scala.language.postfixOps
 
 trait UserRepository extends Repository[ID[User], User] {
   def allUsers: Future[Seq[User]]
 
   def allUsersWithHobbies(implicit ec: ExecutionContext): Future[Map[User, Seq[Hobby]]]
+
+  def findByName(name: Name)(implicit ec: ExecutionContext): Future[User]
 }
 
 trait UsesUserRepository {
@@ -52,5 +55,10 @@ class UserRepositoryImpl extends UserRepository with MixInDB {
       results.groupBy { _._1 }
         .mapValues { _.map { _._2 } }
     }
+  }
+
+  def findByName(name: Name)(implicit ec: ExecutionContext): Future[User] = {
+    val q = Users.findByName(name.value)
+    db.run(q.result.head)
   }
 }
