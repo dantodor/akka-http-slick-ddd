@@ -1,13 +1,12 @@
-package net.petitviolet.application.usercase.user
+package net.petitviolet.application.usecase.user
 
-import net.petitviolet.application.usercase.BaseDTO
+import net.petitviolet.application.usecase.BaseDTO
 import net.petitviolet.domain.lifecycle.MixInUserRepository
 import net.petitviolet.domain.support.{ ID, Identifier }
 import net.petitviolet.domain.user.{ Email, Name, User }
-import net.petitviolet.infra.user.Users
 import spray.json._
 
-import scala.concurrent.{ Future, ExecutionContext }
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait UserCreateUseCase {
   def execute(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext): Future[ID[User]]
@@ -22,7 +21,6 @@ trait MixInUserCreateUseCase {
 }
 
 class UserCreateUseCaseImpl extends UserCreateUseCase with MixInUserRepository {
-  import slick.driver.MySQLDriver.api._
   override def execute(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext): Future[ID[User]] = {
     val user = User(
       ID(Identifier.generate),

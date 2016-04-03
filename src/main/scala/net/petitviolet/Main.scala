@@ -9,7 +9,7 @@ import akka.stream.scaladsl.{ Flow, Sink, Source }
 import com.typesafe.config.ConfigFactory
 import net.petitviolet.application.service.healthcheck.HealthCheckService
 import net.petitviolet.application.service.user.{ UserServiceImpl, UserService }
-import net.petitviolet.application.usercase.user.MixInUserCreateUseCase
+import net.petitviolet.application.usecase.user.MixInUserCreateUseCase
 import net.petitviolet.domain.lifecycle.MixInUserRepository
 import net.petitviolet.domain.pong.{ MixInPongService, UsesPongService }
 import net.petitviolet.domain.support.ID

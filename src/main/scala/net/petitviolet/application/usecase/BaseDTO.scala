@@ -1,4 +1,4 @@
-package net.petitviolet.application.usercase
+package net.petitviolet.application.usecase
 
 import net.petitviolet.domain.support.Entity
 

@@ -3,7 +3,7 @@ package net.petitviolet.application.service.user
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import net.petitviolet.application.service.ServiceBase
-import net.petitviolet.application.usercase.user.{ MixInUserCreateUseCase, UserCreateDTO, UsesUserCreateUseCase }
+import net.petitviolet.application.usecase.user.{ MixInUserCreateUseCase, UserCreateDTO, UsesUserCreateUseCase }
 import net.petitviolet.domain.lifecycle.{ MixInUserRepository, UsesUserRepository }
 import net.petitviolet.domain.support.ID
 import net.petitviolet.domain.user.{ Hobby, User }
