@@ -1,5 +1,6 @@
 package net.petitviolet.application.service.user
 
+import akka.http.scaladsl.coding.{ Gzip, Deflate }
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import net.petitviolet.application.service.ServiceBase
@@ -88,7 +89,9 @@ trait UserService extends ServiceBase
     pathPrefix("users") {
       pathEndOrSingleSlash {
         get {
-          list
+          encodeResponseWith(Gzip, Deflate) {
+            list
+          }
         } ~
           post {
             decodeRequest {
