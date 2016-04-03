@@ -12,6 +12,8 @@ class Users(tag: Tag) extends Table[User](tag, "user") {
   def name = column[String]("name")
   def email = column[String]("email")
 
+  def idx = index("name", name, unique = true)
+
   private def userToColumn(u: User) =
     Some((
       u.id.value,
