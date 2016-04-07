@@ -8,8 +8,8 @@ import slick.driver.MySQLDriver.api._
 import scala.language.postfixOps
 
 class Hobbies(tag: Tag) extends Table[Hobby](tag, "hobby") {
-  def id = column[String]("id", O.PrimaryKey)
-  def userId = column[String]("user_id")
+  def id = column[String]("id", O.PrimaryKey, O.Length(254))
+  def userId = column[String]("user_id", O.Length(254))
   def content = column[String]("content")
 
   def user = foreignKey("user_FK", userId, Users)(

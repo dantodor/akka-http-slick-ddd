@@ -8,9 +8,9 @@ import slick.driver.MySQLDriver.api._
 import scala.language.postfixOps
 
 class Users(tag: Tag) extends Table[User](tag, "user") {
-  def id = column[String]("id", O.PrimaryKey)
-  def name = column[String]("name")
-  def email = column[String]("email")
+  def id = column[String]("id", O.PrimaryKey, O.Length(254))
+  def name = column[String]("name", O.Length(254))
+  def email = column[String]("email", O.Length(254))
 
   def idx = index("name", name, unique = true)
 
