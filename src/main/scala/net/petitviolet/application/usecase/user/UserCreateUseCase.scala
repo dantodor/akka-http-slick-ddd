@@ -8,7 +8,16 @@ import spray.json._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+/**
+ * User creation UseCase
+ */
 trait UserCreateUseCase {
+  /**
+   * execute User creation, then return created User's ID
+   * @param userCreateDTO
+   * @param ec
+   * @return
+   */
   def execute(userCreateDTO: UserCreateDTO)(implicit ec: ExecutionContext): Future[ID[User]]
 }
 

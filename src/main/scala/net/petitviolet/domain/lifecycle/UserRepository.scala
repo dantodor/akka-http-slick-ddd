@@ -14,6 +14,13 @@ trait UserRepository extends Repository[ID[User], User] {
   def allUsersWithHobbies(implicit ec: ExecutionContext): Future[Map[User, Seq[Hobby]]]
 
   def findByName(name: Name)(implicit ec: ExecutionContext): Future[User]
+
+  def hobbies(userId: ID[User])(implicit ec: ExecutionContext): Future[Seq[Hobby]]
+
+  /**
+   * this API is owned by UserRepository, since Hobbies are attributes of Users',
+   */
+  def addHobby(hobby: Hobby)(implicit ec: ExecutionContext): Future[ID[Hobby]]
 }
 
 trait UsesUserRepository {
@@ -40,9 +47,9 @@ class UserRepositoryImpl extends UserRepository with MixInDB {
     db.run(findById(id).delete) map { _ > 0 }
 
   override def resolveBy(id: ID[User])(implicit ec: ExecutionContext): Future[User] =
-    db.run(findById(id).result.head)
+    db.run(findById(id).result) map { _.head }
 
-  def allUsers: Future[Seq[User]] =
+  override def allUsers: Future[Seq[User]] =
     db.run(Users.result)
 
   override def allUsersWithHobbies(implicit ec: ExecutionContext): Future[Map[User, Seq[Hobby]]] = {
@@ -57,8 +64,18 @@ class UserRepositoryImpl extends UserRepository with MixInDB {
     }
   }
 
-  def findByName(name: Name)(implicit ec: ExecutionContext): Future[User] = {
+  override def hobbies(userId: ID[User])(implicit ec: ExecutionContext): Future[Seq[Hobby]] = {
+    val q = Hobbies filter { hobby => hobby.userId === userId.value }
+    db.run(q.result)
+  }
+
+  override def findByName(name: Name)(implicit ec: ExecutionContext): Future[User] = {
     val q = Users.findByName(name.value)
-    db.run(q.result.head)
+    db.run(q.result) map { _.head }
+  }
+
+  override def addHobby(hobby: Hobby)(implicit ec: ExecutionContext): Future[ID[Hobby]] = {
+    val q = Hobbies += hobby
+    db.run(q) map { _ => hobby.id }
   }
 }

@@ -1,24 +1,30 @@
 package net.petitviolet.application.service.user
 
-import akka.http.scaladsl.coding.{ Gzip, Deflate }
+import akka.http.scaladsl.coding.{ Deflate, Gzip }
+import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import net.petitviolet.application.service.ServiceBase
-import net.petitviolet.application.usecase.user.{ MixInUserCreateUseCase, UserCreateDTO, UsesUserCreateUseCase }
+import net.petitviolet.application.usecase.user._
 import net.petitviolet.domain.lifecycle.{ MixInUserRepository, UsesUserRepository }
-import net.petitviolet.domain.support.ID
-import net.petitviolet.domain.user.{ Name, Hobby, User }
+import net.petitviolet.domain.support.{ Entity, ID }
+import net.petitviolet.domain.user.{ Content, Hobby, Name, User }
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-trait UserServiceImpl extends UserService with MixInUserRepository with MixInUserCreateUseCase
+trait UserServiceImpl
+  extends UserService
+  with MixInUserRepository
+  with MixInUserCreateUseCase
+  with MixInAddHobbyUseCase
 
 trait UserService extends ServiceBase
     with UsesUserRepository
-    with UsesUserCreateUseCase {
+    with UsesUserCreateUseCase
+    with UsesAddHobbyUseCase {
 
-  import net.petitviolet.domain.user.UserJsonProtocol._
+  import ID._
 
   /**
    * show all user list
@@ -26,6 +32,7 @@ trait UserService extends ServiceBase
    * @return
    */
   private def list = {
+    import net.petitviolet.domain.user.UserJsonProtocol._
     val usersFuture: Future[Seq[User]] = userRepository.allUsers
     onSuccess(usersFuture) {
       case users: Seq[User] => complete(users)
@@ -42,19 +49,21 @@ trait UserService extends ServiceBase
    */
   private def findUserById(id: ID[User])(implicit ec: ExecutionContext) = {
     val userFuture = userRepository.resolveBy(id)
-    handleFindUserFuture(userFuture)
+    handleFutureResult(userFuture)
   }
 
   private def findUserByName(name: Name)(implicit ec: ExecutionContext) = {
     val userFuture = userRepository.findByName(name)
-    handleFindUserFuture(userFuture)
+    handleFutureResult(userFuture)
   }
 
-  private def handleFindUserFuture(userFuture: Future[User])(implicit ec: ExecutionContext): Route =
+  private def handleFutureResult(userFuture: Future[User])(implicit ec: ExecutionContext): Route = {
+    import net.petitviolet.domain.user.UserJsonProtocol._
     onSuccess(userFuture) {
-      case user: User => complete(user)
+      case result: User => complete(result)
       case _ => complete(StatusCodes.NotFound)
     }
+  }
 
   /**
    * show all users with his or her hobbies
@@ -63,7 +72,7 @@ trait UserService extends ServiceBase
    * @return
    */
   private def listWithHobbies(implicit ec: ExecutionContext) = {
-    //    import net.petitviolet.domain.user.HobbyJsonProtocol._
+    import net.petitviolet.domain.user.HobbyJsonProtocol._
     val resultFuture = userRepository.allUsersWithHobbies
     onSuccess(resultFuture) {
       case userWithHobbies: Map[User, Seq[Hobby]] =>
@@ -102,7 +111,7 @@ trait UserService extends ServiceBase
           parameter('name) { name =>
             findUserByName(Name(name))
           } ~
-          // /users
+            // /users
             encodeResponseWith(Gzip, Deflate) {
               list
             }
@@ -116,7 +125,6 @@ trait UserService extends ServiceBase
           } ~
           delete {
             decodeRequest {
-              import ID._
               // how to resolve smartly, and should I prepare IdDTO?
               entity(as[ID[_]]) { (id: ID[_]) =>
                 deleteUser(ID(id.value))
@@ -124,15 +132,47 @@ trait UserService extends ServiceBase
             }
           }
       } ~
-      // /users/<ID>
-        path(".+{36}".r) { userId =>
-          get {
-            // should I use ID? or raw String?
-            findUserById(ID(userId))
-          }
+        // /users/<ID>
+        pathPrefix(".+{36}".r) { userId =>
+          pathEnd {
+            get {
+              // should I use ID? or raw String?
+              findUserById(ID(userId))
+            }
+          } ~
+            // /users/<ID>/hobbies
+            path("hobbies") {
+              get {
+                hobbies(ID(userId))
+              } ~ {
+                post {
+                  import net.petitviolet.domain.user.HobbyJsonProtocol._
+                  decodeRequest {
+                    entity(as[Content]) { (content: Content) =>
+                      addHobby(AddHobbyDTO(ID(userId), content))
+                    }
+                  }
+                }
+              }
+            }
         }
-
     }
+
+  def hobbies(userId: ID[User])(implicit ec: ExecutionContext) = {
+    import net.petitviolet.domain.user.HobbyJsonProtocol._
+    val result = userRepository.hobbies(userId)
+    onSuccess(result) {
+      case hobbies: Seq[Hobby] => complete(hobbies)
+    }
+  }
+
+  def addHobby(addHobbyUseCaseDTO: AddHobbyDTO)(implicit ec: ExecutionContext) = {
+    val result = addHobbyUseCase.execute(addHobbyUseCaseDTO)
+    onSuccess(result) {
+      case ID(id) => complete(s"Success!: $id")
+      case _ => complete("Fail!")
+    }
+  }
 
   private def withHobbiesRoutes(implicit ec: ExecutionContext) =
     path("users_with_hobbies") {
