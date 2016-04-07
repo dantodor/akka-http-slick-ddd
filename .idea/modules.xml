@@ -3,7 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/akka-http-microservice-prac.iml" filepath="$PROJECT_DIR$/.idea/modules/akka-http-microservice-prac.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/akka-http-microservice-prac-build.iml" filepath="$PROJECT_DIR$/.idea/modules/akka-http-microservice-prac-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/akka-http-slick-ddd.iml" filepath="$PROJECT_DIR$/.idea/modules/akka-http-slick-ddd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/akka-http-slick-ddd-build.iml" filepath="$PROJECT_DIR$/.idea/modules/akka-http-slick-ddd-build.iml" />
     </modules>
   </component>
 </project>
