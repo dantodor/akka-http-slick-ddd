@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.application.usecase.user._
+import akka.http.scaladsl.model._
 import net.petitviolet.domain.lifecycle.{ MixInUserRepository, UsesUserRepository }
 import net.petitviolet.domain.support.{ Entity, ID }
 import net.petitviolet.domain.user.{ Content, Hobby, Name, User }
@@ -126,8 +127,8 @@ trait UserService extends ServiceBase
           delete {
             decodeRequest {
               // how to resolve smartly, and should I prepare IdDTO?
-              entity(as[ID[_]]) { (id: ID[_]) =>
-                deleteUser(ID(id.value))
+              entity(as[ID[User]]) { (id: ID[User]) =>
+                deleteUser(id)
               }
             }
           }
@@ -142,11 +143,11 @@ trait UserService extends ServiceBase
           } ~
             // /users/<ID>/hobbies
             path("hobbies") {
+              import net.petitviolet.domain.user.HobbyJsonProtocol._
               get {
                 hobbies(ID(userId))
               } ~ {
                 post {
-                  import net.petitviolet.domain.user.HobbyJsonProtocol._
                   decodeRequest {
                     entity(as[Content]) { (content: Content) =>
                       addHobby(AddHobbyDTO(ID(userId), content))
