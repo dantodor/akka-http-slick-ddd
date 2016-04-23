@@ -118,7 +118,7 @@ trait UserService extends ServiceBase
             }
         } ~
           post {
-            decodeRequest {
+            decodeRequestWith(Gzip) {
               entity(as[UserCreateDTO]) { dto =>
                 createUser(dto)
               }
