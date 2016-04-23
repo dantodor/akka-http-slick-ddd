@@ -1,19 +1,30 @@
 package net.petitviolet.application.service.healthcheck
 
-import java.lang.management.ManagementFactory
-
 import akka.event.Logging
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server._
 import net.petitviolet.application.service.ServiceBase
-import net.petitviolet.domain.health.Status
-import net.petitviolet.domain.pong.{ MixInPongService, UsesPongService, Pong }
-
-import scala.concurrent.duration._
+import net.petitviolet.domain.pong.UsesPongService
 
 trait HealthCheckService extends ServiceBase with UsesPongService {
+  val rejectionHandler =
+    RejectionHandler
+      .newBuilder()
+      .handleNotFound {
+        complete((StatusCodes.NotFound, "requested path was invalid."))
+      }
+      .handle {
+        case r: Rejection =>
+          complete((StatusCodes.BadRequest, s"something wrong: $r"))
+      }
+      .result()
 
-  private val pingRoute =
+  val exceptionHandler = ExceptionHandler {
+    case t: Throwable => complete((StatusCodes.InternalServerError, s"Error is $t"))
+  }
+
+  private val _pingRoute =
     pathPrefix("ping") {
       pathEnd {
         get {
@@ -23,8 +34,26 @@ trait HealthCheckService extends ServiceBase with UsesPongService {
         }
       } ~
         path(".+".r) { msg =>
-          pongService.response(Pong(msg))
+          if (msg == "hoge") {
+            throw new IllegalArgumentException("cannot understand `hoge`")
+          } else if (msg.length < 10) {
+            reject {
+              new ValidationRejection(
+                "Your message is too short!",
+                Some(new IllegalArgumentException("length must be longer than 10"))
+              )
+            }
+          } else {
+            complete(s"$msg")
+          }
         }
+    }
+
+  val pingRoute =
+    handleExceptions(exceptionHandler) {
+      handleRejections(rejectionHandler) {
+        _pingRoute
+      }
     }
 
   private val uptimeRoute = path("uptime") {
