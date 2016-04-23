@@ -6,7 +6,8 @@ import net.petitviolet.infra.user.{ Hobbies, Users }
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-object DDL extends App with MixInDB {
+//object DDL extends App with MixInDB {
+object DDL extends MixInDB {
   import slick.driver.MySQLDriver.api._
   val schema =
     Users.schema ++
