@@ -4,10 +4,12 @@ import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
+import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{ Flow, Sink, Source }
 import com.typesafe.config.ConfigFactory
 import net.petitviolet.application.service.healthcheck.HealthCheckService
+import net.petitviolet.application.service.RoutingSampleService
 import net.petitviolet.application.service.user.{ UserServiceImpl, UserService }
 import net.petitviolet.application.usecase.user.MixInUserCreateUseCase
 import net.petitviolet.domain.lifecycle.MixInUserRepository
@@ -31,7 +33,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object Main extends App with MixInDB with MixInUserRepository
-    with HealthCheckService with UserServiceImpl with MixInPongService {
+    with HealthCheckService with RoutingSampleService with UserServiceImpl with MixInPongService {
 
   implicit val system = ActorSystem()
   implicit val executor = system.dispatcher
@@ -45,7 +47,8 @@ object Main extends App with MixInDB with MixInUserRepository
 
   logger.info(s"Starting service on port $port")
 
-  val routes = userRoutes ~ healthRoutes
+  val routes: Route = userRoutes ~ healthRoutes ~ routingRoutes
+  logger.info(s"$routes")
 
   val bindingFuture = Http().bindAndHandle(routes, interface, port)
   scala.io.StdIn.readLine()
