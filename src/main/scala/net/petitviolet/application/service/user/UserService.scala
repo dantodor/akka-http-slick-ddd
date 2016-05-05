@@ -9,8 +9,12 @@ import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.application.usecase.user._
 import akka.http.scaladsl.model._
 import net.petitviolet.domain.lifecycle.{ MixInUserRepository, UsesUserRepository }
+import net.petitviolet.domain.support.Identifier.IdType
 import net.petitviolet.domain.support.{ Entity, ID }
 import net.petitviolet.domain.user.{ Content, Hobby, Name, User }
+import net.petitviolet.domain.user.HobbyJsonProtocol._
+import net.petitviolet.domain.user.UserJsonProtocol._
+//import net.petitviolet.domain.support.ID._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -25,15 +29,12 @@ trait UserService extends ServiceBase
     with UsesUserCreateUseCase
     with UsesAddHobbyUseCase {
 
-  import ID._
-
   /**
    * show all user list
    *
    * @return
    */
   private def list = {
-    import net.petitviolet.domain.user.UserJsonProtocol._
     val usersFuture: Future[Seq[User]] = userRepository.allUsers
     onSuccess(usersFuture) {
       case users: Seq[User] => complete(users)
@@ -59,7 +60,6 @@ trait UserService extends ServiceBase
   }
 
   private def handleFutureResult(userFuture: Future[User])(implicit ec: ExecutionContext): Route = {
-    import net.petitviolet.domain.user.UserJsonProtocol._
     onSuccess(userFuture) {
       case result: User => complete(result)
       case _ => complete(StatusCodes.NotFound)
@@ -73,13 +73,14 @@ trait UserService extends ServiceBase
    * @return
    */
   private def listWithHobbies(implicit ec: ExecutionContext) = {
-    import net.petitviolet.domain.user.HobbyJsonProtocol._
     val resultFuture = userRepository.allUsersWithHobbies
+
+    import net.petitviolet.domain.user.HobbyJsonProtocol._
     onSuccess(resultFuture) {
       case userWithHobbies: Map[User, Seq[Hobby]] =>
-        val r = userWithHobbies.map {
+        val r: Map[IdType, Seq[String]] = userWithHobbies.map {
           case (user, hobbies) =>
-            (user.name.value, hobbies map { _.content.value })
+            (user.id.value, hobbies map { _.content.value })
         }
         complete(r)
       case _ => complete(StatusCodes.NotFound)
@@ -143,7 +144,6 @@ trait UserService extends ServiceBase
           } ~
             // /users/<ID>/hobbies
             path("hobbies") {
-              import net.petitviolet.domain.user.HobbyJsonProtocol._
               get {
                 hobbies(ID(userId))
               } ~ {
@@ -160,7 +160,6 @@ trait UserService extends ServiceBase
     }
 
   def hobbies(userId: ID[User])(implicit ec: ExecutionContext) = {
-    import net.petitviolet.domain.user.HobbyJsonProtocol._
     val result = userRepository.hobbies(userId)
     onSuccess(result) {
       case hobbies: Seq[Hobby] => complete(hobbies)
