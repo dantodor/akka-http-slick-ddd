@@ -17,10 +17,14 @@ object UserJsonProtocol extends DefaultJsonProtocol {
   //  implicit val usersFormat: RootJsonFormat[Users] = jsonFormat1(Users.apply)
 
   // below jsonFormat behave as not expected
-  //  implicit val userIdFormat = ID.idFormat[User]
-  //  implicit val nameFormat = jsonFormat(Name.apply _, "name")
-  //  implicit val emailFormat = jsonFormat(Email.apply _, "email")
+  //  implicit val userIdFormat = jsonFormat(ID.apply[User] _, "value")
+  //  implicit val nameFormat = jsonFormat(Name.apply _, "value")
+  //  implicit val emailFormat = jsonFormat(Email.apply _, "value")
   //  implicit val userFormat = jsonFormat(User.apply, "id", "name", "email")
+  //  implicit val userIdFormat = jsonFormat1(ID.apply[User])
+  //  implicit val nameFormat = jsonFormat1(Name.apply)
+  //  implicit val emailFormat = jsonFormat1(Email.apply)
+  //  implicit val userFormat = jsonFormat3(User.apply)
 
   implicit val userFormat: RootJsonFormat[User] = new RootJsonFormat[User] {
     override def read(json: JsValue): User =
