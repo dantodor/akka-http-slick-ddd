@@ -5,6 +5,7 @@ import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import net.petitviolet.UsesContext
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.application.usecase.user._
 import akka.http.scaladsl.model._
@@ -27,7 +28,8 @@ trait UserServiceImpl
 trait UserService extends ServiceBase
     with UsesUserRepository
     with UsesUserCreateUseCase
-    with UsesAddHobbyUseCase {
+    with UsesAddHobbyUseCase
+    with UsesContext {
 
   /**
    * show all user list

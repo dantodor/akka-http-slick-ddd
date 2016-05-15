@@ -27,32 +27,31 @@ import slick.dbio.DBIOAction
 import slick.driver.MySQLDriver.api._
 import akka.http.scaladsl.server.Directives._
 
-import scala.concurrent.{ Future, Await }
+import scala.concurrent.{ ExecutionContextExecutor, Future, Await }
 import scala.concurrent.duration.Duration._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-object Main extends App with MixInDB with MixInUserRepository
-    with HealthCheckService with RoutingSampleService with UserServiceImpl with MixInPongService {
-
-  implicit val system = ActorSystem()
-  implicit val executor = system.dispatcher
-  implicit val materializer = ActorMaterializer()
-
-  val config = ConfigFactory.load()
-
-  val logger = Logging(system, "demo-service")
-
-  val (interface, port) = (config.getString("http.interface"), config.getInt("http.port"))
-
-  logger.info(s"Starting service on port $port")
+object Main extends App
+    with MixInDB
+    with MixInUserRepository
+    with HealthCheckService
+    with RoutingSampleService
+    with UserServiceImpl
+    with MixInPongService
+    with MixInContext {
+  import context._
 
   val routes: Route = userRoutes ~ healthRoutes ~ routingRoutes
-  logger.info(s"$routes")
 
-  val bindingFuture = Http().bindAndHandle(routes, interface, port)
+  val server = new Server(routes, new ServerConfigImpl)(context)
+
+  server.start()
   scala.io.StdIn.readLine()
-  bindingFuture.flatMap(_.unbind()).onComplete(_ => system.terminate())
+  server.stop()
+
+  //  val binding = server.start()
+  //  Await.ready(binding, Duration.Inf)
 
   //  implicit val getUserResult = GetResult { (r: PositionedResult) =>
   //    User(r.rs.getInt("id"), r.rs.getString("name"), r.rs.getString("email"))

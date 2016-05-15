@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory
 import akka.event.Logging
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
+import net.petitviolet.UsesContext
 import net.petitviolet.application.service.ServiceBase
 import net.petitviolet.domain.health.Status
 import net.petitviolet.domain.pong.{ Pong, UsesPongService }

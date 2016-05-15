@@ -1,15 +1,6 @@
 package net.petitviolet.application.service
 
-import akka.actor.ActorSystem
-import akka.event.{ Logging, LoggingAdapter }
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.stream.ActorMaterializer
+import net.petitviolet.UsesContext
 
-trait ServiceBase extends SprayJsonSupport {
-
-  val system: ActorSystem
-
-  val materializer: ActorMaterializer
-
-  val logger: LoggingAdapter
-}
+trait ServiceBase extends SprayJsonSupport with UsesContext
